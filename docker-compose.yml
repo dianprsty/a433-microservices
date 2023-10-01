@@ -1,0 +1,47 @@
+# menetapkan docker compose version yang digunakan pada dokumen
+version: "3.7"
+
+# mendefinisikan service apa saja yang akan dijalankan
+services:
+  # docker compose akan menjalanjak service item-app
+  item-app:
+    # service item-app akan menggunakan image ghcr.io/dianprsty/item-app
+    image: ghcr.io/dianprsty/item-app
+
+    # menjalankan server saat container dimmulai
+    command: sh -c "npm start"
+
+    # mapping port 80 milik host ke port 8080 milik container
+    ports:
+      - 80:8080
+
+    # menetapkan /app sebagai working directory
+    working_dir: /app
+
+    # menetapkan environtment variable yg digunakan oleh container
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=item-db
+
+    # menetapkan bahwa service item-app bergantung pada service item-db
+    depends_on:
+      - item-db
+
+    # menerapkan restart policy agar container selalu restart saat terhenti
+    restart: always
+
+  # docker compose akan menjalanjak service item-db
+  item-db:
+    # service item-db akan menggunakan image mongo:3
+    image: mongo:3
+
+    # service item-db akan menggunakan volume app-db dengan target /data/db
+    volumes:
+      - app-db:/data/db
+
+    # menerapkan restart policy agar container selalu restart saat terhenti
+    restart: always
+
+# membuat volukme baru dengan nama app-db
+volumes:
+  app-db:
