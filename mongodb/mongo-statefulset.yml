@@ -1,0 +1,85 @@
+# Mendefinisikan API Version dari object yg dibuat
+apiVersion: apps/v1
+
+# Menentukan jenis object kubernetes yaitu StatefulSet
+kind: StatefulSet
+
+# Metadata digunakan untuk mendefinisikan informasi terkait StatefulSet
+metadata:
+  # Mendefinisikan nama StatefulSet
+  name: mongo-statefulset
+
+# Mendefinisikan spesifikasi dari StatefulSet
+spec:
+  # Menetapkan nama service yang digunakan oleh StatefulSet
+  serviceName: mongo
+
+  # Menetapkan selector yang nanti digunakan untuk mengelompokan resource pod
+  selector:
+    # Menetapkan spesifikasi dari pod yang dikelompokan
+    matchLabels:
+      app: mongo
+
+  # Membuat 1 replika
+  replicas: 1
+
+  # Menetapkan template Pod dari Statefulset
+  template:
+    # Menetapkan metadata terkait pod
+    metadata:
+      labels:
+        app: mongo
+
+    # Menetapkan spesifikasi Pod
+    spec:
+      # Menetapkan volume yang akan di mount oleh StatefulSet
+      volumes:
+        # Menetapkan volume untuk mount credential yang berasal dari secret
+        - name: mongo-credentials
+          secret:
+            secretName: mongo-secret
+
+        # Menetapkan persistent volume claim yang digunakan untuk menyimpan data secara persistent
+        - name: data
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+
+        # Menentukan volume untuk mount file mongo.conf yang disimpan di ConfigMap
+        - name: config
+          configMap:
+            name: mongo-config
+
+      # Mendefinisikan spesifikasi mongo container
+      containers:
+        # Menetapkan nama container mongo-db
+        - name: mongo-db
+
+          # menetapkan image mongo yang digunakan, jika tidak tersedia di lokal akan mengambil dari dockerhub
+          image: mongo:3
+
+          ports:
+            # Menentukan port untuk mongo
+            - containerPort: 27017
+              name: mongo-port
+
+          # Mount volume sesuai yang sudah didefinisikan dan mendefinisikan path tempat volume di mount
+          volumeMounts:
+            # Mount config
+            - name: config
+              mountPath: /config
+
+            # Mount mongo-credentials
+            - name: mongo-credentials
+              mountPath: /etc/mongo-credentials
+
+            # Mount data
+            - name: data
+              mountPath: /data/db
+
+          # Menentukan env dari mongodb
+          env:
+            # Environment Variabel yang diambil dari file mongo credential yg sudah di mount
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE
+              value: /etc/mongo-credentials/MONGO_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+              value: /etc/mongo-credentials/MONGO_ROOT_PASSWORD

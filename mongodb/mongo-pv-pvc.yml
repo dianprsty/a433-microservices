@@ -1,0 +1,57 @@
+# Mendefinisikan API Version dari object yg dibuat
+apiVersion: v1
+
+# Menentukan jenis object kubernetes yaitu PersistenVolume
+kind: PersistentVolume
+
+# Metadata digunakan untuk mendefinisikan informasi terkait Persisten Volume
+metadata:
+  # Mendefinisikan nama Persistent Volume
+  name: mongo-pv
+
+# Mendefinisikan spesifikasi Persistent Volume
+spec:
+  # Mengalokasikan kapasitas Persistent Volume Sebesar 1000 Mi
+  capacity:
+    storage: 1000Mi
+
+  # Menetapkan accessMode ReadWriteOnce karena di aplikasi tidak mengharuskan multi Pod menulis secara bersamaan
+  accessModes:
+    - ReadWriteOnce
+
+  # Menetapkan storageClassName berupa hostpath
+  # default value adalah hostpath
+  storageClassName: hostpath
+  volumeMode: Filesystem
+
+  # Menetapkan persistentVolumeReclaim polocy yaitu Retain
+  persistentVolumeReclaimPolicy: Retain
+
+  # Menambahkan type hostpath dan disimpan ke /tmp
+  hostPath:
+    path: "/tmp"
+
+---
+# Mendefinisikan API Version dari object yg dibuat
+apiVersion: v1
+
+# Menentukan jenis object kubernetes yaitu PersistenVolumeClaim
+kind: PersistentVolumeClaim
+
+# Metadata digunakan untuk mendefinisikan informasi terkait Persisten Volume Claim
+metadata:
+  # Mendefinisikan nama Persistent Volume Claim
+  name: mongo-pvc
+
+# Mendefinisikan spesifikasi Persistent Volume Claim
+spec:
+  # Menentukan resource yang digunakan oleh Persistent Volume Claim
+  resources:
+    # Menetukan kapasitas storage pvc yaitu 500MB
+    # kapasitas ini jika tidak boleh melebihi kapasitas Persistent Volume
+    requests:
+      storage: 500Mi
+
+  # Menetapkan accessMode ReadWriteOnce karena di aplikasi tidak mengharuskan multi Pod menulis secara bersamaan
+  accessModes:
+    - ReadWriteOnce

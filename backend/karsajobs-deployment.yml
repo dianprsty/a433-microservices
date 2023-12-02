@@ -1,0 +1,63 @@
+# Mendefinisikan API Version dari object yg dibuat
+apiVersion: apps/v1
+
+# Menentukan jenis object kubernetes yaitu Deployment
+kind: Deployment
+
+# Metadata digunakan untuk mendefinisikan informasi terkait Deployment
+metadata:
+  # Mendefinisikan nama deployment
+  name: karsajobs-deployment
+
+# Mendefinisikan spesifikasi deployment
+spec:
+  # Membuat 1 replika
+  replicas: 1
+
+  # Menetapkan selector yang nanti digunakan untuk mengelompokan resource pod
+  selector:
+    # Menetapkan spesifikasi dari pod yang dikelompokan
+    matchLabels:
+      app: karsajobs
+      tier: backend
+
+  # Menetapkan template Pod
+  template:
+    # Menetapkan metadata terkait pod
+    metadata:
+      # Menetapkan label dari pod karsajob
+      labels:
+        app: karsajobs
+        tier: backend
+
+    # Menetapkan spesifikasi Pod
+    spec:
+      containers:
+        # Mendefinisikan detail informasi container yg akan dibuat
+        # Informasi yang ditetapkan adalah name, image, ports dan env
+        - name: karsajobs-backend
+          image: ghcr.io/dianprsty/karsajobs:latest
+          ports:
+            # Container port sama dengan port aplikasi yg ditetapkan di image
+            - containerPort: 8080
+
+          # Menset ENV Variabel yang dibutuhkan oleh backend
+          env:
+            # Menetapkan port berjalannya aplikasi
+            - name: APP_PORT
+              value: "8080"
+            # Menetapkan database host untuk menghubungkan ke mongodb melalui mongo-service
+            - name: MONGO_HOST
+              value: mongo-service
+            # Mengambild value mongo user dari mongo-secret
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGO_ROOT_USERNAME
+            # Mengambild value mongo password dari mongo-secret
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGO_ROOT_PASSWORD

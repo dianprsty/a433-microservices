@@ -1,0 +1,27 @@
+# Mendefinisikan API Version dari object yg dibuat
+apiVersion: v1
+
+# Menentukan jenis object kubernetes yaitu Service
+kind: Service
+
+# Metadata digunakan untuk mendefinisikan informasi terkait Service
+metadata:
+  # Mendefinisikan nama service untuk backend
+  name: karsajobs-ui-service
+
+# Mendefinisikan spesifikasi dari service
+spec:
+  # Tipe service untuk frontend adalah nodeport
+  type: NodePort
+
+  # Menetapkan selector untuk mengelompokan resource pod yang dapat diakses oleh service ini
+  selector:
+    app: karsajobs
+    tier: frontend
+
+  # Menetapkan port aplikasi
+  ports:
+    # mengeskpos port 8080 dan menetapkan nodeport dedicated 30001
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30001

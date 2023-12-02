@@ -1,0 +1,20 @@
+# Mendefinisikan API Version dari object yg dibuat
+apiVersion: v1
+
+# Menentukan jenis object kubernetes yaitu Service
+kind: Service
+
+# Metadata digunakan untuk mendefinisikan informasi terkait Service
+metadata:
+  # Mendefinisikan nama service untuk mongo
+  name: mongo-service
+
+# Mendefinisikan spesifikasi dari service
+spec:
+  # Menetapkan selector untuk mengelompokan resource pod yang dapat diakses oleh service ini
+  selector:
+    app: mongo
+  # Menetapkan port aplikasi defailt untuk mongodb adalah 27017
+  ports:
+    - port: 27017
+      targetPort: 27017

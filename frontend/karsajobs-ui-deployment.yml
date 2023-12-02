@@ -1,0 +1,48 @@
+# Mendefinisikan API Version dari object yg dibuat
+apiVersion: apps/v1
+
+# Menentukan jenis object kubernetes yaitu Deployment
+kind: Deployment
+
+# Metadata digunakan untuk mendefinisikan informasi terkait Deployment
+metadata:
+  # Mendefinisikan nama deployment
+  name: karsajobs-ui-deployment
+
+# Mendefinisikan spesifikasi deployment
+spec:
+  # Membuat 1 replika
+  replicas: 1
+
+  # Menetapkan selector yang nanti digunakan untuk mengelompokan resource pod
+  selector:
+    # Menetapkan spesifikasi dari pod yang dikelompokan
+    matchLabels:
+      app: karsajobs
+      tier: frontend
+
+  # Menetapkan template Pod
+  template:
+    # Menetapkan metadata terkait pod
+    metadata:
+      labels:
+        app: karsajobs
+        tier: frontend
+
+    # Menetapkan spesifikasi Pod
+    spec:
+      containers:
+        # Mendefinisikan detail informasi container yg akan dibuat
+        # Informasi yang ditetapkan adalah name, image, ports dan env
+        - name: karsajobs-ui
+          image: ghcr.io/dianprsty/karsajobs-ui:latest
+          # Buka port 8000
+          ports:
+            # Container port sama dengan port aplikasi yg ditetapkan di image
+            - containerPort: 8000
+          # Env berisi url backend, disini saya menggunakan wsl2 untuk menjalankan kubernetes
+          # sehingga tidak bosa langsung mengakses http://<Node IP>:<Node Port>
+          # dan value tersebut berasal dari minikube service karsajobs service
+          env:
+            - name: VUE_APP_BACKEND
+              value: http://127.0.0.1:39479
